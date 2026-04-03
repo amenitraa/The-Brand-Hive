@@ -65,7 +65,7 @@ export function renderSidebar(container) {
           ➕ New Agent
         </div>
         ${haltCount > 0 ? `
-          <div class="nav-item" data-section="agents" style="color:var(--red)">
+          <div class="nav-item" data-section="agents" data-filter-halts="true" style="color:var(--red)">
             ⚠️ ${haltCount} halt${haltCount!==1?'s':''}
           </div>` : ''}
       </div>
@@ -83,7 +83,8 @@ export function renderSidebar(container) {
       const section = el.dataset.section;
       const view = el.dataset.view;
       const viewmode = el.dataset.viewmode;
-      const updates = { section, selectedIds: new Set() };
+      const filterHalts = el.dataset.filterHalts === 'true';
+      const updates = { section, selectedIds: new Set(), filterHalts };
       if (view) updates.view = view;
       if (viewmode) updates.viewMode = viewmode;
       if (section === 'tasks' && !viewmode) updates.viewMode = 'table';

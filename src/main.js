@@ -110,8 +110,9 @@ function renderAll(s) {
     let startTab = 'board';
     if (s.section === 'agents-directory') startTab = 'directory';
     if (s.section === 'agents-intake') startTab = 'intake';
+    const haltsOnly = s.filterHalts || false;
     import('./components/AgentHub.js').then(({ renderAgentHub }) => {
-      renderAgentHub(content, startTab);
+      renderAgentHub(content, startTab, haltsOnly);
     });
   } else {
     if (topbarMount) { topbarMount.style.display = ''; renderTopbar(topbarMount, () => openTaskModal(null)); }

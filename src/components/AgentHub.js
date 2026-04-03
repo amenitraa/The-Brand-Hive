@@ -10,8 +10,11 @@ let hubTab = 'board'; // 'board' | 'directory' | 'intake' | 'claude'
 let filterStatus = '';
 let filterLifecycle = '';
 let searchQ = '';
+let showHaltsOnly = false;
 
-export function renderAgentHub(container) {
+export function renderAgentHub(container, startTab, haltsOnly) {
+  if (startTab) hubTab = startTab;
+  if (haltsOnly) { showHaltsOnly = true; hubTab = "board"; } else if (startTab) { showHaltsOnly = false; }
   container.innerHTML = `
     <div class="agent-hub">
       <div class="hub-nav">
@@ -73,6 +76,7 @@ function renderHubContent(content) {
 
 function renderBoard(content) {
   let agents = getAgents();
+  if (showHaltsOnly) agents = agents.filter(a => (a.halts||[]).length > 0);
   if (searchQ) agents = agents.filter(a => a.name.toLowerCase().includes(searchQ.toLowerCase()) || a.description.toLowerCase().includes(searchQ.toLowerCase()));
   if (filterStatus) agents = agents.filter(a => a.status === filterStatus);
   if (filterLifecycle) agents = agents.filter(a => a.lifecycle.includes(filterLifecycle));
