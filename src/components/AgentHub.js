@@ -159,25 +159,33 @@ function renderAgentCard(agent) {
 }
 
 function openAgentDetail(agentId, content) {
-  // Slide in detail panel
+  // Create backdrop overlay
   const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.22);backdrop-filter:blur(3px);z-index:1000;display:flex;align-items:flex-start;justify-content:flex-end';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.22);backdrop-filter:blur(3px);z-index:1000';
   overlay.id = 'agent-detail-overlay';
   document.body.appendChild(overlay);
 
+  // Create panel directly on body (position:fixed in CSS)
   const panel = document.createElement('div');
   panel.className = 'agent-detail';
-  overlay.appendChild(panel);
+  document.body.appendChild(panel);
 
   function refreshDetail() {
     renderAgentDetail(panel, agentId, () => {
       overlay.remove();
+      panel.remove();
       renderBoard(content);
     }, refreshDetail);
   }
   refreshDetail();
 
-  overlay.addEventListener('click', e => { if (e.target === overlay) { overlay.remove(); renderBoard(content); } });
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) {
+      overlay.remove();
+      panel.remove();
+      renderBoard(content);
+    }
+  });
 }
 
 function renderClaudePanel(content) {
