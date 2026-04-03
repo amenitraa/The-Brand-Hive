@@ -350,7 +350,6 @@ function collectEdits(panel, agent, tab) {
   }
 }
 
-function getMemberNames() { try { return JSON.parse(localStorage.getItem('bt_members')||'[]').map(m=>m.name); } catch { return []; } }
 function hexRgba(hex, a) { if(!hex||!hex.startsWith('#')) return `rgba(180,180,180,${a})`; const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return `rgba(${r},${g},${b},${a})`; }
 function darken(hex) { if(!hex||!hex.startsWith('#')) return '#333'; const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return `rgb(${Math.round(r*.4)},${Math.round(g*.4)},${Math.round(b*.4)})`; }
 function cap(s) { return s?s.charAt(0).toUpperCase()+s.slice(1):''; }
