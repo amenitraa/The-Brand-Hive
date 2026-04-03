@@ -1,5 +1,5 @@
-export const SUPABASE_URL = window.SUPABASE_URL || 'YOUR_SUPABASE_URL';
-export const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+export const SUPABASE_URL = window.SUPABASE_URL || 'https://btulujmzywugnubopxif.supabase.co';
+export const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'sb_publishable_JbetOpbjfF0Lgb400tecNQ_SP-LzyA-';
 
 let supabase = null;
 
