@@ -52,7 +52,13 @@ export function subscribeToTasks(callback) {
     .subscribe();
   return () => supabase.removeChannel(sub);
 }
-
+export function subscribeToComments(callback) {
+  if (!supabase) return () => {};
+  const sub = supabase.channel('comments-channel')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comments' }, callback)
+    .subscribe();
+  return () => supabase.removeChannel(sub);
+}
 function getDemoTasks() {
   // Import lazily to avoid circular deps — use defaults directly
   const members = ['Amanda', 'Amenitra', 'Vivi', 'Kate', 'Grace', 'Shannon'];
