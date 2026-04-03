@@ -263,6 +263,33 @@ const DEFAULT_AGENTS = [
     agentPrompt: '',
     createdAt: '2026-04-01',
   },
+  {
+    id: 'agent-11',
+    name: 'Industry Competitive Research',
+    description: 'Conducts in-depth competitive research across industries — surfacing insights on competitors, market positioning, trends, and opportunities to inform campaign strategy and Sales conversations.',
+    icon: '🔎',
+    color: '#99f6e4',
+    status: 'deployed',
+    lifecycle: ['activation'],
+    crossFunctional: ['Sales', 'Marketing'],
+    partner: 'Microsoft Copilot',
+    userCount: 0,
+    usageNotes: 'Built in Microsoft Copilot. Live and ready to use — click Open Agent to launch it.',
+    progressReadout: 'Fully deployed via Microsoft Copilot. First live agent in The Brand Hive! Available to Marketing and Sales teams.',
+    actionItems: [
+      { id: 'a11-1', text: 'Onboard Marketing team to the agent', done: false, owner: 'Amenitra' },
+      { id: 'a11-2', text: 'Share link with Sales team', done: false, owner: 'Amanda' },
+      { id: 'a11-3', text: 'Log first usage session', done: false, owner: 'Amenitra' },
+    ],
+    halts: [],
+    timeline: [
+      { date: '2026-04-03', title: 'Deployed in Copilot', note: 'First live agent! Built in Microsoft Copilot Studio', color: '#6ee7b7' },
+      { date: '2026-04-03', title: 'Added to The Brand Hive', note: 'Available to full team via directory', color: '#6ee7b7' },
+    ],
+    link: 'https://m365.cloud.microsoft/chat/?titleId=T_cbfbd341-73ea-4c97-2521-a6c2303bf39a&source=embedded-builder',
+    agentPrompt: '',
+    createdAt: '2026-04-03',
+  },
 ];
 
 export const AGENT_STATUSES = [
