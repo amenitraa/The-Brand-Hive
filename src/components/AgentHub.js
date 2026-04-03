@@ -27,7 +27,12 @@ export function renderAgentHub(container) {
   `;
 
   container.querySelectorAll('[data-tab]').forEach(btn => {
-    btn.addEventListener('click', () => { hubTab = btn.dataset.tab; renderAgentHub(container); });
+    btn.addEventListener('click', () => {
+      hubTab = btn.dataset.tab;
+      container.querySelectorAll('[data-tab]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderHubContent(container.querySelector('#hub-content'));
+    });
   });
 
   // Filter events
@@ -62,7 +67,7 @@ function renderHubContent(content) {
   if (!content) return;
   if (hubTab === 'board') renderBoard(content);
   else if (hubTab === 'directory') renderAgentDirectory(content);
-  else if (hubTab === 'intake') renderIntakeForm(content, () => { hubTab = 'board'; renderAgentHub(content.closest('.agent-hub').parentElement); });
+  else if (hubTab === 'intake') renderIntakeForm(content, () => { hubTab = 'board'; renderBoard(content); });
   else if (hubTab === 'claude') renderClaudePanel(content);
 }
 

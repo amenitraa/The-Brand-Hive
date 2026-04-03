@@ -290,6 +290,33 @@ const DEFAULT_AGENTS = [
     agentPrompt: '',
     createdAt: '2026-04-03',
   },
+  {
+    id: 'agent-12',
+    name: 'LinkedIn Profile Overhaul Agent',
+    description: 'Fill in a quick form with industries, current LinkedIn content, and tone of voice — and get a fully optimized profile back: headlines, About section, Experience bullets, Featured section recommendations, and banner copy, all aligned to brand positioning.',
+    icon: '💼',
+    color: '#bfdbfe',
+    status: 'deployed',
+    lifecycle: ['launch', 'live', 'activation'],
+    crossFunctional: ['Marketing', 'Sales', 'Leadership', 'Company-wide'],
+    partner: 'Microsoft Copilot',
+    userCount: 0,
+    usageNotes: 'Available company-wide. Great for anyone refreshing their LinkedIn to align with updated brand positioning around staffing and consulting.',
+    progressReadout: 'Fully deployed. Company-wide access. Generates complete LinkedIn profile optimizations from a simple intake form.',
+    actionItems: [
+      { id: 'a12-1', text: 'Announce to full company', done: false, owner: 'Amanda' },
+      { id: 'a12-2', text: 'Create usage guide / quick start doc', done: false, owner: 'Shannon' },
+      { id: 'a12-3', text: 'Log first 5 usage sessions', done: false, owner: 'Amenitra' },
+    ],
+    halts: [],
+    timeline: [
+      { date: '2026-04-03', title: 'Deployed', note: 'Available company-wide', color: '#6ee7b7' },
+      { date: '2026-04-03', title: 'Added to The Brand Hive', note: 'Listed in agent directory', color: '#6ee7b7' },
+    ],
+    link: '',
+    agentPrompt: '',
+    createdAt: '2026-04-03',
+  },
 ];
 
 export const AGENT_STATUSES = [

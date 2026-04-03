@@ -1,5 +1,5 @@
-export const SUPABASE_URL = window.SUPABASE_URL || 'https://btulujmzywugnubopxif.supabase.co';
-export const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'sb_publishable_JbetOpbjfF0Lgb400tecNQ_SP-LzyA-';
+export const SUPABASE_URL = window.SUPABASE_URL || 'YOUR_SUPABASE_URL';
+export const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
 
 let supabase = null;
 
@@ -45,6 +45,7 @@ export async function addComment(taskId, author, text) {
   return supabase.from('comments').insert([{ task_id: taskId, author, text }]).select().single();
 }
 
+// Subscribe to task changes (updates, inserts) with notification hooks
 export function subscribeToTasks(callback) {
   if (!supabase) return () => {};
   const sub = supabase.channel('tasks-channel')
@@ -52,6 +53,8 @@ export function subscribeToTasks(callback) {
     .subscribe();
   return () => supabase.removeChannel(sub);
 }
+
+// Subscribe to new comments with notification hooks
 export function subscribeToComments(callback) {
   if (!supabase) return () => {};
   const sub = supabase.channel('comments-channel')
@@ -59,8 +62,8 @@ export function subscribeToComments(callback) {
     .subscribe();
   return () => supabase.removeChannel(sub);
 }
+
 function getDemoTasks() {
-  // Import lazily to avoid circular deps — use defaults directly
   const members = ['Amanda', 'Amenitra', 'Vivi', 'Kate', 'Grace', 'Shannon'];
   const projects = ['industry', 'account', 'planning', 'brand-advocacy', 'activation', 'campaign-review', 'web', 'ai'];
   const statuses = ['not-started', 'in-progress', 'done', 'on-hold', 'need-support'];
@@ -89,7 +92,7 @@ function getDemoTasks() {
       completed: i % 7 === 0,
       notes: i % 3 === 0 ? 'See Slack thread for context. Deadline is firm.' : '',
       attachments: i % 4 === 0 ? [{ name: 'brief.pdf', size: 124000 }] : [],
-      comments: i % 3 === 0 ? [{ id: `c${i}`, author: members[(i+1)%members.length], text: "OOO reminder — I'll be out Aug 12–16, flag if blocked!", created_at: new Date(now.getTime()-86400000).toISOString() }] : [],
+      comments: i % 3 === 0 ? [{ id: `c${i}`, author: members[(i+1)%members.length], text: "OOO reminder — I'll be out Aug 12-16, flag if blocked!", created_at: new Date(now.getTime()-86400000).toISOString() }] : [],
       created_at: new Date(now.getTime() - i * 86400000 * 2).toISOString(),
     };
   });
