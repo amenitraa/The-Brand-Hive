@@ -1,5 +1,7 @@
 import { icons } from '../lib/icons.js';
-import { getMemberNames, requestNotifPermission } from '../lib/helpers.js';
+import { getMemberNames } from '../lib/helpers.js';
+import { showToast } from './Toast.js';
+import { requestPermission, canNotify } from '../lib/notifications.js';
 import { state, setState } from '../lib/state.js';
 
 export function renderTopbar(container, onAddTask) {
@@ -36,7 +38,7 @@ export function renderTopbar(container, onAddTask) {
   `;
 
   container.querySelector('#add-task-btn').addEventListener('click', onAddTask);
-  container.querySelector('#notif-btn').addEventListener('click', requestNotifPermission);
+  container.querySelector('#notif-btn').addEventListener('click', () => { requestPermission().then(granted => { if(granted) showToast('Notifications enabled! 🔔', 'success'); else showToast('Notifications blocked — check browser settings', 'error'); }); });
   container.querySelector('#current-user-sel').addEventListener('change', e => setState({ currentUser: e.target.value }));
   container.querySelectorAll('.view-btn').forEach(btn => btn.addEventListener('click', () => setState({ viewMode: btn.dataset.mode })));
 }
