@@ -49,7 +49,7 @@ const DEFAULT_AGENTS = [
       { date: '2026-03-24', title: 'First test run', note: 'Tested with Q1 blog series', color: '#93c5fd' },
       { date: '2026-04-01', title: 'In active testing', note: '3 users piloting', color: '#fcd34d' },
     ],
-    link: '',
+    link: 'https://profileoverhaulinsightglobal.netlify.app',
     agentPrompt: '',
     createdAt: '2026-03-10',
   },
