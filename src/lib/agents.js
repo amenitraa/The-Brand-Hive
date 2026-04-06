@@ -1,5 +1,5 @@
 // ====== AGENT DATA ======
-export const DEFAULT_AGENTS = [
+const DEFAULT_AGENTS = [
   {
     id: 'agent-1',
     name: 'Competitive Battle Card Builder',
@@ -313,37 +313,9 @@ export const DEFAULT_AGENTS = [
       { date: '2026-04-03', title: 'Deployed', note: 'Available company-wide', color: '#6ee7b7' },
       { date: '2026-04-03', title: 'Added to The Brand Hive', note: 'Listed in agent directory', color: '#6ee7b7' },
     ],
-    link: 'https://profileoverhaulinsightglobal.netlify.app',
+    link: '',
     agentPrompt: '',
     createdAt: '2026-04-03',
-  },
-  {
-    id: 'agent-13',
-    name: 'Brand Hive — Agent Data Sync',
-    description: 'Technical project to move all agent data (names, icons, colors, statuses, links, progress, action items, usage logs) from localStorage into Supabase so all changes sync across the entire team in real time.',
-    icon: '🔄',
-    color: '#a7f3d0',
-    status: 'backlog',
-    lifecycle: ['planning'],
-    crossFunctional: ['Marketing'],
-    partner: 'Supabase',
-    userCount: 0,
-    usageNotes: '',
-    progressReadout: 'Identified as next major platform upgrade. Will make The Brand Hive fully collaborative on the agent side — not just tasks.',
-    actionItems: [
-      { id: 'a13-1', text: 'Create agents table in Supabase', done: false, owner: 'Amenitra' },
-      { id: 'a13-2', text: 'Create agent_usage_logs table in Supabase', done: false, owner: 'Amenitra' },
-      { id: 'a13-3', text: 'Update agents.js to read/write from Supabase', done: false, owner: 'Amenitra' },
-      { id: 'a13-4', text: 'Migrate localStorage agent data to Supabase', done: false, owner: 'Amenitra' },
-      { id: 'a13-5', text: 'Test real-time sync across all 6 team members', done: false, owner: 'Amenitra' },
-    ],
-    halts: [],
-    timeline: [
-      { date: '2026-04-06', title: 'Added to backlog', note: 'Priority upgrade — needed for full team collaboration on agents', color: '#c4b5fd' },
-    ],
-    link: 'https://m365.cloud.microsoft/chat/?titleId=T_cbfbd341-73ea-4c97-2521-a6c2303bf39a&source=embedded-builder',
-    agentPrompt: '',
-    createdAt: '2026-04-06',
   },
 ];
 

@@ -1,8 +1,6 @@
-import { initSupabase, fetchTasks, subscribeToTasks, subscribeToComments, getClient } from './lib/supabase.js';
+import { initSupabase, fetchTasks, subscribeToTasks, subscribeToComments } from './lib/supabase.js';
 import { state, setState, setTasks, addTask, updateTaskInState, subscribe } from './lib/state.js';
-import { requestPermission, runAllChecks, checkNewComment, checkStatusAlert, checkNewAssignment, showInAppAlert } from './lib/notifications.js';
-import { setAgentStoreClient, fetchAgents, subscribeToAgents } from './lib/agentStore.js';
-import { agentState, setAgents, getAgentsFromState } from './lib/agentState.js';
+import { requestPermission, runAllChecks, checkDueReminders, checkNewComment, checkStatusAlert, checkNewAssignment, showInAppAlert } from './lib/notifications.js';
 import { renderSidebar } from './components/Sidebar.js';
 import { renderTopbar } from './components/Topbar.js';
 import { renderFilterBar } from './components/FilterBar.js';
@@ -17,26 +15,8 @@ async function init() {
   const configured = await initSupabase();
   setState({ isConfigured: configured });
 
-  // Initialize agent store with Supabase client
-  if (configured) {
-    setAgentStoreClient(getClient());
-  }
-
-  // Load tasks and agents in parallel
-  const [{ data: tasks }, agents] = await Promise.all([
-    fetchTasks(),
-    fetchAgents(),
-  ]);
-
+  const { data: tasks } = await fetchTasks();
   setTasks(tasks || []);
-  setAgents(agents || []);
-  // Trigger a re-render after agents load so sidebar shows agent counts
-  setTimeout(() => {
-    const sidebarMount = document.getElementById('sidebar-mount');
-    if (sidebarMount) {
-      import('./components/Sidebar.js').then(({ renderSidebar }) => renderSidebar(sidebarMount));
-    }
-  }, 100);
 
   app.innerHTML = `
     <div class="app-shell">
@@ -57,6 +37,7 @@ async function init() {
   subscribe(renderAll);
   renderAll(state);
 
+  // Request notification permission on load
   setTimeout(() => requestPermission(), 3000);
 
   if (configured) {
@@ -65,10 +46,12 @@ async function init() {
       if (eventType === 'INSERT') {
         if (!state.tasks.find(t => t.id === row.id)) {
           addTask(row);
+          // Notify if assigned to current user
           checkNewAssignment(row, state.currentUser);
         }
       } else if (eventType === 'UPDATE') {
         updateTaskInState(row.id, row);
+        // Notify if status changed to on-hold or need-support
         if (old?.status !== row.status) {
           checkStatusAlert(row, state.currentUser);
           if (row.status === 'on-hold') showInAppAlert(`"${row.name}" was marked On Hold`, 'hold');
@@ -80,35 +63,26 @@ async function init() {
     // Subscribe to new comments
     subscribeToComments(async ({ new: comment }) => {
       if (!comment) return;
+      // Find the task this comment belongs to
       const task = state.tasks.find(t => t.id === comment.task_id);
-      if (!task || comment.author === state.currentUser) return;
+      if (!task) return;
+      // Don't notify if you wrote the comment yourself
+      if (comment.author === state.currentUser) return;
+      // Only notify if this task is assigned to you
       if (task.assignee !== state.currentUser) return;
+      // Add comment to task in state
       const updatedComments = [...(task.comments || []), comment];
       updateTaskInState(task.id, { comments: updatedComments });
+      // Fire notification
       checkNewComment({ ...task, comments: updatedComments }, state.currentUser);
       showInAppAlert(`${comment.author} commented on "${task.name}"`, 'comment');
-    });
-
-    // Subscribe to agent changes — re-fetch and re-render when any agent changes
-    subscribeToAgents(async () => {
-      const updatedAgents = await fetchAgents();
-      setAgents(updatedAgents);
-      // Re-render sidebar to update counts
-      const sidebarMount = document.getElementById('sidebar-mount');
-      if (sidebarMount) renderSidebar(sidebarMount);
-      // Re-render agent hub if currently visible
-      const content = document.getElementById('content-area');
-      if (content && (state.section === 'agents' || state.section === 'agents-directory')) {
-        import('./components/AgentHub.js').then(({ renderAgentHub }) => {
-          renderAgentHub(content, 'board');
-        });
-      }
     });
   }
 
   const loader = document.getElementById('loading-screen');
   if (loader) { loader.classList.add('fade-out'); setTimeout(() => loader.remove(), 300); }
 
+  // Run notification checks on load and every hour
   setTimeout(() => {
     runAllChecks(state.tasks, state.currentUser);
     setInterval(() => runAllChecks(state.tasks, state.currentUser), 3600000);

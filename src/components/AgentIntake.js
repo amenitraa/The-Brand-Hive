@@ -1,7 +1,5 @@
 import { icons } from '../lib/icons.js';
-import { LIFECYCLE_STAGES } from '../lib/agents.js';
-import { createAgentInStore } from '../lib/agentStore.js';
-import { getAgentsFromState } from '../lib/agentState.js';
+import { createNewAgent, LIFECYCLE_STAGES } from '../lib/agents.js';
 import { getMemberNames, PASTEL_COLORS } from '../lib/helpers.js';
 import { showToast } from './Toast.js';
 
@@ -193,7 +191,7 @@ export function renderIntakeForm(container, onSuccess) {
       priority: container.querySelector('#i-priority')?.value || 'medium',
     };
 
-    createAgentInStore({ id: "agent-" + Date.now(), ...data, status: "backlog", userCount: 0, usageNotes: "", actionItems: [], halts: [], timeline: [{ date: new Date().toISOString().split("T")[0], title: "Added to backlog", note: data.submittedBy ? "Submitted by " + data.submittedBy : "", color: "#c4b5fd" }], link: "", agentPrompt: "", createdAt: new Date().toISOString().split("T")[0] });
+    createNewAgent(data);
     showToast(`"${name}" added to the agent backlog! 🎉`, 'success');
     if (onSuccess) onSuccess();
   });

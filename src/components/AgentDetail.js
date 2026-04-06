@@ -1,17 +1,23 @@
 import { icons } from '../lib/icons.js';
-import { agentStatusInfo, AGENT_STATUSES, LIFECYCLE_STAGES } from '../lib/agents.js';
-import { saveAgentToStore, deleteAgentFromStore, fetchUsageLogs, addUsageLogToStore } from '../lib/agentStore.js';
-import { getAgentsFromState } from '../lib/agentState.js';
+import { getAgents, saveAgent, deleteAgent, agentStatusInfo, AGENT_STATUSES, LIFECYCLE_STAGES } from '../lib/agents.js';
 import { getMemberNames, getMembers, PASTEL_COLORS } from '../lib/helpers.js';
 import { showToast } from './Toast.js';
 
 // ====== USAGE LOG HELPERS ======
-// Uses agentStore for Supabase-backed usage logs
-// fetchUsageLogs and addUsageLogToStore imported from agentStore
-
+function getUsageLog(agentId) {
+  try { return JSON.parse(localStorage.getItem(`bt_usage_${agentId}`) || '[]'); } catch { return []; }
+}
+function saveUsageLog(agentId, log) {
+  try { localStorage.setItem(`bt_usage_${agentId}`, JSON.stringify(log)); } catch {}
+}
+function addUsageEntry(agentId, entry) {
+  const log = getUsageLog(agentId);
+  log.unshift({ ...entry, id: Date.now(), timestamp: new Date().toISOString() });
+  saveUsageLog(agentId, log);
+  return log;
+}
 function getAgentStats(agentId) {
-  // Stats computed from cached logs - refreshed on panel open
-  const log = window._agentLogCache?.[agentId] || [];
+  const log = getUsageLog(agentId);
   if (!log.length) return { totalUses: 0, avgRating: 0, uniqueUsers: 0, lastUsed: null, weeklyUses: 0 };
   const now = new Date();
   const weekAgo = new Date(now - 7 * 86400000);
@@ -22,15 +28,11 @@ function getAgentStats(agentId) {
   return { totalUses: log.length, avgRating: Math.round(avgRating * 10) / 10, uniqueUsers, lastUsed: log[0]?.timestamp, weeklyUses };
 }
 
-export async function renderAgentDetail(panel, agentId, onClose, onRefresh) {
-  const agents = getAgentsFromState();
+export function renderAgentDetail(panel, agentId, onClose, onRefresh) {
+  const agents = getAgents();
   const agent = agents.find(a => a.id === agentId);
   if (!agent) return;
   const si = agentStatusInfo(agent.status);
-  // Load usage logs from Supabase and cache them
-  const logs = await fetchUsageLogs(agentId);
-  if (!window._agentLogCache) window._agentLogCache = {};
-  window._agentLogCache[agentId] = logs;
   const stats = getAgentStats(agentId);
 
   panel.innerHTML = `
@@ -90,13 +92,13 @@ export async function renderAgentDetail(panel, agentId, onClose, onRefresh) {
   panel.querySelector('#detail-close').addEventListener('click', onClose);
   panel.querySelector('#detail-delete').addEventListener('click', () => {
     if (!confirm('Delete this agent?')) return;
-    deleteAgentFromStore(agentId);
+    deleteAgent(agentId);
     showToast('Agent deleted', 'success');
     onClose();
   });
   panel.querySelector('#detail-save').addEventListener('click', () => {
     collectEdits(panel, agent, activeTab);
-    saveAgentToStore(agent);
+    saveAgent(agent);
     showToast('Agent saved!', 'success');
     onRefresh();
   });
@@ -190,7 +192,7 @@ function renderOverview(agent) {
 }
 
 function renderUsage(agent) {
-  const log = window._agentLogCache?.[agent.id] || [];
+  const log = getUsageLog(agent.id);
   const stats = getAgentStats(agent.id);
   const members = getMembers();
 
@@ -472,20 +474,16 @@ function openLogUsageModal(agentId, agent, onLogged) {
     const user = overlay.querySelector('#log-user').value;
     if (!user) { showToast('Please select who used it', 'error'); return; }
     const note = overlay.querySelector('#log-note').value.trim();
-    await addUsageLogToStore(agentId, { user, rating: selectedRating, note });
-    
-    // Refresh cache
-    const updatedLogs = await fetchUsageLogs(agentId);
-    if (!window._agentLogCache) window._agentLogCache = {};
-    window._agentLogCache[agentId] = updatedLogs;
+    addUsageEntry(agentId, { user, rating: selectedRating, note });
 
-    // Update userCount on agent
-    const agents2 = getAgentsFromState();
-    const agent2 = agents2.find(a => a.id === agentId);
+    // Also update userCount on agent
+    const agents = getAgents();
+    const agent2 = agents.find(a => a.id === agentId);
     if (agent2) {
-      const uniqueUsers = [...new Set(updatedLogs.map(e => e.user))].length;
+      const log = getUsageLog(agentId);
+      const uniqueUsers = [...new Set(log.map(e => e.user))].length;
       agent2.userCount = uniqueUsers;
-      await saveAgentToStore(agent2);
+      saveAgent(agent2);
     }
 
     overlay.remove();
@@ -522,7 +520,7 @@ function bindDetailTabEvents(panel, agent, tab, onRefresh, agentId) {
     el.addEventListener('click', () => {
       const idx = parseInt(el.dataset.check);
       agent.actionItems[idx].done = !agent.actionItems[idx].done;
-      saveAgentToStore(agent);
+      saveAgent(agent);
       showToast('Updated!', 'success');
       renderDetailTab(panel.querySelector('#detail-body'), agent, tab);
       bindDetailTabEvents(panel, agent, tab, onRefresh, agentId);
@@ -531,7 +529,7 @@ function bindDetailTabEvents(panel, agent, tab, onRefresh, agentId) {
   panel.querySelectorAll('[data-del-action]').forEach(el => {
     el.addEventListener('click', () => {
       agent.actionItems.splice(parseInt(el.dataset.delAction),1);
-      saveAgentToStore(agent);
+      saveAgent(agent);
       renderDetailTab(panel.querySelector('#detail-body'), agent, tab);
       bindDetailTabEvents(panel, agent, tab, onRefresh, agentId);
     });
@@ -539,7 +537,7 @@ function bindDetailTabEvents(panel, agent, tab, onRefresh, agentId) {
   panel.querySelectorAll('[data-del-halt]').forEach(el => {
     el.addEventListener('click', () => {
       agent.halts.splice(parseInt(el.dataset.delHalt),1);
-      saveAgentToStore(agent);
+      saveAgent(agent);
       showToast('Halt resolved!','success');
       renderDetailTab(panel.querySelector('#detail-body'), agent, tab);
       bindDetailTabEvents(panel, agent, tab, onRefresh, agentId);
@@ -550,14 +548,14 @@ function bindDetailTabEvents(panel, agent, tab, onRefresh, agentId) {
     const owner = prompt('Owner:') || '';
     if (!agent.actionItems) agent.actionItems = [];
     agent.actionItems.push({ id: 'ai-'+Date.now(), text, done: false, owner });
-    saveAgentToStore(agent);
+    saveAgent(agent);
     renderDetailTab(panel.querySelector('#detail-body'), agent, tab);
     bindDetailTabEvents(panel, agent, tab, onRefresh, agentId);
   });
   panel.querySelector('#add-halt')?.addEventListener('click', () => {
     const val = panel.querySelector('#halt-input')?.value.trim(); if (!val) return;
     if (!agent.halts) agent.halts = [];
-    agent.halts.push(val); saveAgentToStore(agent); showToast('Halt added','success');
+    agent.halts.push(val); saveAgent(agent); showToast('Halt added','success');
     renderDetailTab(panel.querySelector('#detail-body'), agent, tab);
     bindDetailTabEvents(panel, agent, tab, onRefresh, agentId);
   });
@@ -567,7 +565,7 @@ function bindDetailTabEvents(panel, agent, tab, onRefresh, agentId) {
     const note = panel.querySelector('#tl-note')?.value || '';
     if (!agent.timeline) agent.timeline = [];
     agent.timeline.push({ date, title, note, color: agent.color });
-    saveAgentToStore(agent);
+    saveAgent(agent);
     renderDetailTab(panel.querySelector('#detail-body'), agent, tab);
     bindDetailTabEvents(panel, agent, tab, onRefresh, agentId);
   });

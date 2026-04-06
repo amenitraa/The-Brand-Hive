@@ -1,12 +1,12 @@
 import { icons } from '../lib/icons.js';
 import { getMembers, initials } from '../lib/helpers.js';
-import { getAgentsFromState } from '../lib/agentState.js';
+import { getAgents } from '../lib/agents.js';
 import { state, setState } from '../lib/state.js';
 import { openSettings } from './Settings.js';
 
 export function renderSidebar(container) {
   const members = getMembers();
-  const agents = getAgentsFromState();
+  const agents = getAgents();
   const deployedCount = agents.filter(a=>a.status==='deployed').length;
   const haltCount = agents.filter(a=>(a.halts||[]).length>0).length;
 

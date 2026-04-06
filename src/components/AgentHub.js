@@ -1,7 +1,5 @@
 import { icons } from '../lib/icons.js';
-import { agentStatusInfo, LIFECYCLE_STAGES, AGENT_STATUSES } from '../lib/agents.js';
-import { saveAgentToStore, deleteAgentFromStore, createAgentInStore } from '../lib/agentStore.js';
-import { getAgentsFromState } from '../lib/agentState.js';
+import { getAgents, saveAgent, deleteAgent, agentStatusInfo, LIFECYCLE_STAGES, AGENT_STATUSES } from '../lib/agents.js';
 import { PASTEL_COLORS } from '../lib/helpers.js';
 import { showToast } from './Toast.js';
 import { renderAgentDetail } from './AgentDetail.js';
@@ -77,13 +75,13 @@ function renderHubContent(content) {
 }
 
 function renderBoard(content) {
-  let agents = getAgentsFromState();
+  let agents = getAgents();
   if (showHaltsOnly) agents = agents.filter(a => (a.halts||[]).length > 0);
   if (searchQ) agents = agents.filter(a => a.name.toLowerCase().includes(searchQ.toLowerCase()) || a.description.toLowerCase().includes(searchQ.toLowerCase()));
   if (filterStatus) agents = agents.filter(a => a.status === filterStatus);
   if (filterLifecycle) agents = agents.filter(a => a.lifecycle.includes(filterLifecycle));
 
-  const stats = getAgentsFromState();
+  const stats = getAgents();
   const deployed = stats.filter(a=>a.status==='deployed').length;
   const inProgress = stats.filter(a=>a.status==='in-progress'||a.status==='in-review').length;
   const totalUsers = stats.reduce((s,a)=>s+(a.userCount||0),0);
@@ -118,7 +116,7 @@ function renderBoard(content) {
   content.querySelectorAll('[data-quick-status]').forEach(btn => {
     btn.addEventListener('click', async e => {
       e.stopPropagation();
-      const agents2 = getAgentsFromState();
+      const agents2 = getAgents();
       const agent = agents2.find(a=>a.id===btn.dataset.agentId);
       if (!agent) return;
       agent.status = btn.dataset.quickStatus;
@@ -191,7 +189,7 @@ function openAgentDetail(agentId, content) {
 }
 
 function renderClaudePanel(content) {
-  const agents = getAgentsFromState();
+  const agents = getAgents();
   content.innerHTML = `
     <div class="claude-panel">
       <div class="claude-messages" id="claude-messages">

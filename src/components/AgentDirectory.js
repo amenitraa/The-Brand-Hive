@@ -1,8 +1,7 @@
-import { agentStatusInfo } from '../lib/agents.js';
-import { getAgentsFromState } from '../lib/agentState.js';
+import { getAgents, agentStatusInfo } from '../lib/agents.js';
 
 export function renderAgentDirectory(container) {
-  const agents = getAgentsFromState();
+  const agents = getAgents();
   const deployed = agents.filter(a => a.status === 'deployed');
   const others = agents.filter(a => a.status !== 'deployed');
 

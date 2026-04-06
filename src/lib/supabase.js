@@ -13,7 +13,6 @@ export async function initSupabase() {
 }
 
 export function isConfigured() { return supabase !== null; }
-export function getClient() { return supabase; }
 
 export async function fetchTasks() {
   if (!supabase) return { data: getDemoTasks(), error: null };
